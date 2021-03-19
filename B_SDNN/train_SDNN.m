@@ -6,6 +6,7 @@ global learn_buffer
 global num_layers
 global img_size
 global STDP_params
+
 %   此处显示详细说明
 % STDP_per_layer=STDP_params.STDP_per_layer;
 % offset_STDP=STDP_params.offset_STDP;

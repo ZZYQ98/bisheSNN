@@ -8,6 +8,7 @@ global STDP_counter
 % global STDP_time_post
 STDP_counter=0;
 global weight_STDP_flag
+global a_minus
 %global STDP_params
 %对网络进行训练
 %以及网络中的参数传递过程
@@ -17,7 +18,7 @@ global weight_STDP_flag
 %layer_for_learn=learning_layer+1;
 
 %创建一个STDP权值更新标志寄存器，如在一定时间内某些权值未发生STDP，也无输入或输出脉冲，则发生退化，则标志位对应的权值发生减小，减小幅度为a_minus
-weight_STDP_flag=ones(size(weights(learning_layer)))*30;
+weight_STDP_flag=ones(size(weights(learning_layer)))*10;
 [H,W,D]=size(weights(learning_layer));
 for t=1:total_time       %按照时间顺序使得网络进行学习
     %时间增加，STDP学习影响降低
