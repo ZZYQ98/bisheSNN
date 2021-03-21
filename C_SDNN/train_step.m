@@ -3,12 +3,10 @@ function [  ] = train_step( network_struct,total_time,learning_layer,st)%STDP_pe
 %全局变量定义
 global weights
 global layers
-global STDP_counter
 global STDP_Flag_p
 global STDP_Flag_n
 % global STDP_time_pre %STDP作用时间
 % global STDP_time_post
-STDP_counter=0;
 global weight_STDP_flag
 global STDP_per_layer
 %global STDP_params
@@ -59,7 +57,7 @@ for t=1:total_time       %按照时间顺序使得网络进行学习
     STDP_inactive(learning_layer);
    % weight_range(learning_layer);
     %对矩阵进行更新操作
-    weight_STDP_flag=weight_STDP_flag-1;
+%     weight_STDP_flag=weight_STDP_flag-1;
    if sum(STDP_Flag_p)+sum(STDP_Flag_n)==0       %判定当层的学习是否已经结束
       continue 
    end

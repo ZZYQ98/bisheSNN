@@ -17,8 +17,8 @@ for k=1:WD %一层一层的来   s每一层与权值矩阵的一层进行卷积，得到Ds层
                        for L=1:Ds
                           for I=1:WW
                              for J=1:HH
-                                 if local_image(I,J,L)==1 &&STDP_Flag_n(k)>0
-                                     weights{learning_layer}(I,J,k)=weights{learning_layer}(I,J,k)+deta_STDP_minus(K_STDP_post(i,j,k));
+                                 if local_image(I,J,L)==1 && STDP_Flag_n(k)>0
+                                     weights{learning_layer}(I,J,k)=weights{learning_layer}(I,J,k)-deta_STDP_minus(K_STDP_post(i,j,k))
                                      if weights{learning_layer}(I,J,k)<0.000001
                                         weights{learning_layer}(I,J,k)=0.000001;
                                      end

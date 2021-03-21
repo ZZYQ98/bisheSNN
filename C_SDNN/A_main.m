@@ -60,9 +60,9 @@ img_size=struct('img_sizeH',160,'img_sizeW',160);%定义图像规模
 DoG_params=struct('img_size', img_size, 'DoG_size', 5, 'std1', 1, 'std2', 2);%定义DoG参数
 %定义网络参数
 l1=struct('type','input', 'num_filters', 1, 'pad',0, 'H_layer',DoG_params.img_size.img_sizeH,'W_layer', DoG_params.img_size.img_sizeW);
-l2=struct('type', 'conv', 'num_filters', 4, 'filter_size', 5, 'th', 1.5);
+l2=struct('type', 'conv', 'num_filters', 4, 'filter_size', 5, 'th', 3);
 l3=struct('type', 'pool', 'num_filters', 4, 'filter_size', 17, 'th', 0., 'stride', 16);
-l4=struct('type', 'conv', 'num_filters',10, 'filter_size', 15, 'th', 5);
+l4=struct('type', 'conv', 'num_filters',10, 'filter_size', 15, 'th', 20);
 l5=struct('type', 'pool', 'num_filters',10, 'filter_size',10, 'th', 0., 'stride', 1);
 learnable_layers=[2,4];
 network_params={l1,l2,l3,l4,l5};

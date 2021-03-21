@@ -1,5 +1,4 @@
-function [sp_time] = prop_step(st)
-global network_struct
+function [sp_time] = prop_step(st,network_struct)
 global layers
 global total_time
 global num_layers
@@ -14,7 +13,7 @@ for t=1:total_time
         [ s_pad ]=pad_for_conv( s,pad );    %s为对于前一层的输出补零得到的值，规模为网络规模边界+补零，有利于之后进行卷积操作
         
         if strcmp( network_struct{i}.Type,'conv' )
-           conv_step_prop( i,s_pad,network_struct{i}.stride,network_struct{i}.th);%进行一次权值更新
+          conv_step5(i,s_pad,network_struct{i}.stride,network_struct{i}.th);
         elseif strcmp( network_struct{i}.Type,'pool' )
             pooling1(i,s_pad,network_struct{i}.stride,network_struct{i}.th);
         end

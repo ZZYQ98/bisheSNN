@@ -2,7 +2,6 @@ function [X_train] = train_feature(num_img_train)
 global network_struct
 global num_layers
 global DoG
-global layers
 global img_size
 global DoG_params
 global spike_times_train
@@ -38,7 +37,7 @@ featrues_in_train=[];
                  curr_img=0;
              end
            end
-          sp_time=prop_step(st);
+          sp_time=prop_step(st,network_struct);
           % Obtain maximum potential per map in last layer      
         %features_train=layers{num_layers}.V;%最后一层V的值是一个1*1*D的三维矩阵
         [~,n_features]=size(sp_time);

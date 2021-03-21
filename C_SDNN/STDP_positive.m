@@ -11,25 +11,24 @@ global deta_STDP_plus
 K_STDP_pre_pad=pad_for_conv( K_STDP_pre,pad );
 [~,~,Ds]=size(s);
 %ÔöÇ¿ĞÍSTDP
-for k=1:Sk      %Êä³ö¾ØÕóSµÄµÚk²ã¶ÔÓ¦×ÅÊäÈë¾ØÕóµÄLocal_image¾­¹ıµÚk²ãÈ¨ÖµÓ³ÉäµÃµ½
-    for i=1:Si
-        for j=1:Sj
-            if S(i,j,k)==1%´ú±íÊä³ö¾ØÕóµÚ i£¬j£¬k·¢ÉäÂö³å£¬
+for sk=1:Sk      %Êä³ö¾ØÕóSµÄµÚk²ã¶ÔÓ¦×ÅÊäÈë¾ØÕóµÄLocal_image¾­¹ıµÚk²ãÈ¨ÖµÓ³ÉäµÃµ½
+    for si=1:Si
+        for sj=1:Sj
+            if S(si,sj,sk)==1%´ú±íÊä³ö¾ØÕóµÚ i£¬j£¬k·¢ÉäÂö³å£¬
                 %ĞèÒªËİÔ´Õâ¸ö·¢³öµÄÂö³åÔÚÇ°Ò»²ã½øĞĞ¾í»ıÊ±£¬¶ÔÓ¦µÄÓ³ÉäÇøÓò
-                local_K_STDP=K_STDP_pre_pad((i-1)*stride+1:(i-1)*stride+HH,(j-1)*stride+1:(j-1)*stride+WW,:);%Ç°Ò»²ã¶ÔÓ¦µÄÓ³ÉäÎ»ÖÃ ´óĞ¡ÎªHH*WW*Ds
+                local_K_STDP=K_STDP_pre_pad((si-1)*stride+1:(si-1)*stride+HH,(sj-1)*stride+1:(sj-1)*stride+WW,:);%Ç°Ò»²ã¶ÔÓ¦µÄÓ³ÉäÎ»ÖÃ ´óĞ¡ÎªHH*WW*Ds
+                %¶ÔÓÚK_STDP¾ØÕó½øĞĞ±éÀú²Ù×÷
                 for I=1:HH
                     for J=1:WW
                         for K=1:Ds
-                          if local_K_STDP(I,J,K)>0&&STDP_Flag_p(k)>0
-                            weights{learning_layer}(I,J,k)=weights{learning_layer}(I,J,k)+deta_STDP_plus(local_K_STDP(I,J,K));  %¶ÔÕâÒ»²ãµÄÂö³å¾ØÕó½øĞĞÈ¨Öµ¸üĞÂ
-                            if weights{learning_layer}(I,J,k)>0.999999
-                               weights{learning_layer}(I,J,k)=0.999999;
-                            end
-                            weight_STDP_flag(I,J,k)=0;%ÉèÖÃÎªĞË·Ü×´Ì¬
-                            STDP_Flag_p(k)=STDP_Flag_p(k)-1;
-                            if STDP_Flag_p==0
-                                break
-                            end
+                          if local_K_STDP(I,J,K)>0&&STDP_Flag_p(sk)>0
+                             weights{learning_layer}(I,J,sk)=weights{learning_layer}(I,J,sk)+deta_STDP_plus(local_K_STDP(I,J,K));  %¶ÔÕâÒ»²ãµÄÂö³å¾ØÕó½øĞĞÈ¨Öµ¸üĞÂ
+                             local_K_STDP(I,J,K)=0;%¶ÔK_STDP¾ØÕóÓĞÒ»¸ö²Ù×÷£¬·¢ÉúÑ§Ï°ºóÇåÁã
+                               if weights{learning_layer}(I,J,sk)>0.999999
+                               weights{learning_layer}(I,J,sk)=0.999999;
+                               end
+                            weight_STDP_flag(I,J,sk)=0;%ÉèÖÃÎªĞË·Ü×´Ì¬
+                            STDP_Flag_p(sk)=STDP_Flag_p(sk)-1;
                           end
                         end
                     end
@@ -38,13 +37,7 @@ for k=1:Sk      %Êä³ö¾ØÕóSµÄµÚk²ã¶ÔÓ¦×ÅÊäÈë¾ØÕóµÄLocal_image¾­¹ıµÚk²ãÈ¨ÖµÓ³ÉäµÃµ
         end
     end
 end
-%ÒÖÖÆĞÍSTDP£ººóÉñ¾­Ôª·¢³öÂö³åÖ®ºóÇ°Éñ¾­ÔªÓÖÊäÈëÂö³å
-%sÎªÊäÈëÂö³å¼±Õï
-% for k=1:sk
-%     for i=1:si
-%         for j=1:sj
-%             if s(i,j,k)==1
-%                 local_k_STDP=K_STDP_post()
+
 
 
 end
