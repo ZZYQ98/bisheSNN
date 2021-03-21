@@ -6,14 +6,14 @@ clear
 %输入图片路径
 global spike_times_train
 global spike_times_learn
-path_list='D:\git code\bisheSNN\database';
-spike_times_to_learn='D:\MATLABfiles\database\LearningSet\face';
-spike_times_to_train='D:\MATLABfiles\database\TestingSet\face';
-spike_times_to_test='D:\MATLABfiles\database\TrainingSet\face';
-path_set_weights='D:\SDNN_files\set_weight';
+path_list='D:\git code\bisheSNN\database\LearningSet\face';
+spike_times_to_learn='D:\git code\bisheSNN\database\LearningSet\face';
+spike_times_to_train='D:\git code\bisheSNN\database\TestingSet\face';
+spike_times_to_test='D:\git code\bisheSNN\database\TrainingSet\face';
+path_set_weights='D:\git code\bisheSNN\set_weight';
 %结果存储路径
-path_save_weights='D:\SDNN_files\set_weights';
-path_features='D:\SDNN_files\features';
+path_save_weights='D:\git code\bisheSNN\set_weights';
+path_features='D:\git code\bisheSNN\features';
 %定义FLAG
 global learn_SDNN
 global set_weights
@@ -55,19 +55,20 @@ global DoG_params
 global total_time
 global tao_minus
 global tao_plus
+global STDP_per_layer
 img_size=struct('img_sizeH',160,'img_sizeW',160);%定义图像规模
 DoG_params=struct('img_size', img_size, 'DoG_size', 5, 'std1', 1, 'std2', 2);%定义DoG参数
 %定义网络参数
 l1=struct('type','input', 'num_filters', 1, 'pad',0, 'H_layer',DoG_params.img_size.img_sizeH,'W_layer', DoG_params.img_size.img_sizeW);
-l2=struct('type', 'conv', 'num_filters', 4, 'filter_size', 5, 'th', 3);
+l2=struct('type', 'conv', 'num_filters', 4, 'filter_size', 5, 'th', 1.5);
 l3=struct('type', 'pool', 'num_filters', 4, 'filter_size', 17, 'th', 0., 'stride', 16);
-l4=struct('type', 'conv', 'num_filters',10, 'filter_size', 15, 'th', 8);
+l4=struct('type', 'conv', 'num_filters',10, 'filter_size', 15, 'th', 5);
 l5=struct('type', 'pool', 'num_filters',10, 'filter_size',10, 'th', 0., 'stride', 1);
 learnable_layers=[2,4];
 network_params={l1,l2,l3,l4,l5};
 weight_params=struct('mean',0.8,'std',0.05);%定义权值初始化参数
 max_learn_iter=[0,60,0,80,0];
-STDP_per_layer=[0,10,0,4,0,2];
+STDP_per_layer=[0,6,0,2,0];
 max_iter=sum(max_learn_iter);
 a_minus=[0,0.003,0,0.003];
 a_plus=[0,0.005,0,0.005];
@@ -78,8 +79,8 @@ STDP_params=struct('max_learning_iter',max_learn_iter,'STDP_per_layer',STDP_per_
                    'max_iter',max_iter,'a_minus',a_minus,'a_plus',a_plus);
 total_time=100;
 STDP_time=10;%用于定义K_STDP标志矩阵
-STDP_time_pre=15;%增强型STDP权值更新
-STDP_time_post=20;%抑制性
+STDP_time_pre=35;%增强型STDP权值更新
+STDP_time_post=30;%抑制性
 %-------------------------------------根据输入参数创建网络SDNN_net----------------------------------------------------
 %网络结构初始化
 [~,num_layers]=size(network_params);
@@ -97,8 +98,8 @@ layers = init_layers(network_struct);%调用函数init_layers，网络中层的初始化
 %获得STDP权值更新矩阵
 global deta_STDP_minus
 global deta_STDP_plus
-deta_STDP_minus=deta_STDP(0.03,STDP_time_post,40);  %作用窗长度为STDP_time_minus=40，时长数为40
-deta_STDP_plus=deta_STDP(0.09,STDP_time_pre,20);    %作用窗长度为STDP_time_plus=30，时长数为20
+deta_STDP_minus=deta_STDP(0.03,STDP_time_post,40);  %作用窗长度为STDP_time_minus=40，时常数为40
+deta_STDP_plus=deta_STDP(0.07,STDP_time_pre,20);    %作用窗长度为STDP_time_plus=30，时常数为20
 %——————————————————输入脉冲是否经过滤波得到————————————————————————————————————
 % 
 if DoG==1
@@ -117,7 +118,7 @@ if DoG==1
 %     [num_img_,~]=size(spike_times_texst);
  end       
 
-%------------------------------------训练得到结果-----------------------------------------------------------------------
+% %------------------------------------训练得到结果-----------------------------------------------------------------------
 features_train=[];
 features_text=[];
 
@@ -127,7 +128,7 @@ if set_weights==1
     weights=weights_buff.weights;
 else
     learn_buffer=spike_times_learn;
-    train_SDNN(network_struct,total_time,spike_times_learn,DoG_params,num_img_learn);
+    train_SDNN(network_struct,spike_times_learn,DoG_params,num_img_learn);
 end
 %权值存储
 if save_weights==1

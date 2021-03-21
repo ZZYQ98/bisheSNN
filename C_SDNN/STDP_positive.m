@@ -20,12 +20,15 @@ for k=1:Sk      %Êä³ö¾ØÕóSµÄµÚk²ã¶ÔÓ¦×ÅÊäÈë¾ØÕóµÄLocal_image¾­¹ýµÚk²ãÈ¨ÖµÓ³ÉäµÃµ
                 for I=1:HH
                     for J=1:WW
                         for K=1:Ds
-                          if local_K_STDP(I,J,K)>0&&STDP_Flag_p(k)==1
+                          if local_K_STDP(I,J,K)>0&&STDP_Flag_p(k)>0
                             weights{learning_layer}(I,J,k)=weights{learning_layer}(I,J,k)+deta_STDP_plus(local_K_STDP(I,J,K));  %¶ÔÕâÒ»²ãµÄÂö³å¾ØÕó½øÐÐÈ¨Öµ¸üÐÂ
-                            weight_STDP_flag(I,J,k)=100;
-                            STDP_Flag_p(k)=0;
-                            if weights{learning_layer}(I,J,k)>1-10e-6
-                                weights{learning_layer}(I,J,k)=1-10e-6;
+                            if weights{learning_layer}(I,J,k)>0.999999
+                               weights{learning_layer}(I,J,k)=0.999999;
+                            end
+                            weight_STDP_flag(I,J,k)=0;%ÉèÖÃÎªÐË·Ü×´Ì¬
+                            STDP_Flag_p(k)=STDP_Flag_p(k)-1;
+                            if STDP_Flag_p==0
+                                break
                             end
                           end
                         end

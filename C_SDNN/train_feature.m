@@ -13,9 +13,9 @@ filt=DOG_creat1(DoG_params);
 featrues_in_train=[];
 %  X_train: Training features of size (N, M) where N is the number of training samples and M is the number of maps in the last layer
        network_struct{5}.th=100000; % Set threshold of last layer to inf
-       fprintf('-------------------------------------------------------------')
-       fprintf('--------------EXTRACTING TRAINING FEATURES-------------------')
-       fprintf('-------------------------------------------------------------')
+       fprintf('-------------------------------------------------------------\n')
+       fprintf('--------------EXTRACTING TRAINING FEATURES-------------------\n')
+       fprintf('-------------------------------------------------------------\n')
        for i=1:num_img_train
            perc=i/num_img_train;
             fprintf('---------------------TRAINING PROGRESS %2.3f----------------- \n',perc)
@@ -24,7 +24,7 @@ featrues_in_train=[];
             
            if DoG       % 是否进行DoG获得输入脉冲矩阵st
              path_img=spike_times_train{n};
-              if n<num_img_train;
+              if n<num_img_train
                   n=n+1;
               else
                   n=3;
@@ -38,11 +38,11 @@ featrues_in_train=[];
                  curr_img=0;
              end
            end
-          prop_step(st)
+          sp_time=prop_step(st);
           % Obtain maximum potential per map in last layer      
-        features_train=layers{num_layers}.V;%最后一层V的值是一个1*1*D的三维矩阵
-        [~,n_features]=size(features_train);
-        featrues_in_train=[featrues_in_train,features_train];%将行向量结合
+        %features_train=layers{num_layers}.V;%最后一层V的值是一个1*1*D的三维矩阵
+        [~,n_features]=size(sp_time);
+        featrues_in_train=[featrues_in_train,sp_time];%将行向量结合
        end
        X_train=reshape(featrues_in_train,[num_img_train,n_features]);  %将特征转化为矩阵形式
        fprintf('---------------------TRAINING PROGRESS %2.3f----------------- \n',num_img_train/num_img_train)

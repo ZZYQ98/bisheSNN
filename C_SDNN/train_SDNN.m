@@ -1,4 +1,4 @@
-function []=train_SDNN(network_struct,total_time,spike_times_learn,DoG_params,num_img_learn)
+function []=train_SDNN(network_struct,spike_times_learn,DoG_params,num_img_learn)
 %UNTITLED2 此处显示有关此函数的摘要.
 global learnable_layers
 global DoG
@@ -6,6 +6,7 @@ global learn_buffer
 global num_layers
 global img_size
 global STDP_params
+global total_time
 %   此处显示详细说明
 % STDP_per_layer=STDP_params.STDP_per_layer;
 % offset_STDP=STDP_params.offset_STDP;
@@ -18,7 +19,7 @@ n=3;
 filt=DOG_creat1(DoG_params);
  fprintf('-------------------- STARTING LEARNING---------------------\n')             %开始训练，之后进行迭代
  for i=1:max_iter                      %max_iter 为最大迭代次数
-    perc=i/max_iter;
+     perc=i/max_iter;
      fprintf('---------------------LEARNING PROGRESS %2.4f-------------------- \n',perc)  %显示当前的训练进度
       %调用函数 reset_layers
       reset_layers(num_layers);%将所有的层进行恢复
@@ -31,7 +32,7 @@ filt=DOG_creat1(DoG_params);
       %得到输入脉冲矩阵
      if DoG  % 是否进行滤波
           path_img=learn_buffer{n};
-              if n<num_img_learn;
+              if n<num_img_learn
                   n=n+1;
               else
                   n=3;
@@ -46,8 +47,7 @@ filt=DOG_creat1(DoG_params);
           end
      end
      
-   %layers{1}.S=st;%input层的输入脉冲由此可以得到
-     train_step(network_struct,total_time,learning_layer,st); %调用 函数train_step()  输入脉冲为st，包含了时间信息，针对输入脉冲开始进行权值训练
+     train_step( network_struct,total_time,learning_layer,st); %调用 函数train_step()  输入脉冲为st，包含了时间信息，针对输入脉冲开始进行权值训练
 
  end
     fprintf('---------LEARNING PROGRESS %2.3f------------- \n',perc)

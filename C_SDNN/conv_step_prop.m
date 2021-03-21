@@ -1,5 +1,4 @@
 function [ ] =conv_step_prop( ii,s,stride,th)
-global STDP_time_post     %抑制性STDP作用时间，后神经元先发出脉冲，前神经元后发出脉冲，导致权值下降
 global layers 
 global weights
 [~,~,Ds]=size(s);
