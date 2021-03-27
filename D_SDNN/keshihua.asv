@@ -1,0 +1,13 @@
+% 
+% W=weights{4};
+% weight_img=max(W,[],3);
+% weight_img=max(weight_img,[],4);
+
+weights_path_list='weights3.26.mat';
+weights_buff=load(weights_path_list);
+weights_c2=weights_buff.weights{2};
+
+
+
+subplot(121),imshow(weight_img);
+subplot(122),imshow(weight_img1);
