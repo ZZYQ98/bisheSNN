@@ -1,0 +1,12 @@
+clc 
+clear
+%得到图片的地址，存在buff中
+path_list='D:\git_code\D_SDNN\dataset_new\LearningSet';
+path_list_Face=[path_list,'\','Face'];
+path_list_Motorbike=[path_list,'\','Motorbike'];
+[path_Face_i,path_Face_j]=size(path_list_Face);
+[path_Motorbike_i,path_Motorbike_j]=size(path_list_Motorbike);
+iter=cell
+path=dir(path_list_Face);
+
+%[path_iter,labels,num_img]=gen_iter_path(path_list);
