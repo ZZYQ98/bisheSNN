@@ -60,27 +60,5 @@ end
     %传播完毕，得到了需要进行更新的STDP位置，进行STDP学习 
   [weights] = STDP(layers,learning_layer,STDP_index,weights,network_struct,deta_STDP_minus,deta_STDP_plus);
     
-    
-    
-    
-    
-%     %STDP  positive negative 进行操作，对于权值进行更新。
-%    [ weights{learning_layer},layers{learning_layer-1}.K_STDP,weight_STDP_flag ] =STDP_positive(layers{learning_layer}.S,layers{learning_layer-1}.S,layers{learning_layer-1}.K_STDP,...
-%     network_struct{learning_layer}.stride,network_struct{learning_layer}.pad,weight_STDP_flag,weights{learning_layer},deta_STDP_plus);
-
-
-
-   
-%  %添加了STDP_inh的STDP学习函数
-%  [weights{learning_layer},weight_STDP_flag] = STDP_pos(layers{learning_layer}.S,weights{learning_layer},V_buff,layers{learning_layer-1}.K_STDP,...
-%   network_struct{learning_layer}.stride,network_struct{learning_layer}.pad,weight_STDP_flag,deta_STDP_plus,offset(learning_layer) );
-%  
-%  [ weights{learning_layer},layers{learning_layer}.K_STDP,weight_STDP_flag ]=STDP_negative(layers{learning_layer}.S,layers{learning_layer-1}.S,layers{learning_layer}.K_STDP  ,...
-%  network_struct{learning_layer}.stride,network_struct{learning_layer}.pad,weight_STDP_flag,weights{learning_layer},deta_STDP_minus) ;
-
- 
-  
-
-
 end
 

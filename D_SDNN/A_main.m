@@ -4,7 +4,7 @@ clc
 clear
 
 %输入图片路径
-path_list='D:\A_bishe\D_SDNN\dataset_new';
+path_list='D:\git_code\D_SDNN\dataset_new';
 spike_times_to_learn=[path_list,'\LearningSet'];
 spike_times_to_train=[path_list,'\TrainingSet'];
 spike_times_to_test=[path_list,'\TestingSet'];
@@ -19,7 +19,7 @@ global save_weights
 global save_feature
 global DoG
 %标志位定义
-learn_SDNN=0;   %定义网络学习标志位，learn_SDNN等于1时，网络进行STDP学习，当learn_SDNN等于0时，网络不发生学习，直接读取已经得到的权值数据，进行测试
+learn_SDNN=1;   %定义网络学习标志位，learn_SDNN等于1时，网络进行STDP学习，当learn_SDNN等于0时，网络不发生学习，直接读取已经得到的权值数据，进行测试
 %首先看网络是否进行训练      
 if  learn_SDNN==1                  
     set_weights=0;         %训练时，不设置权值，而进行权值初始化
@@ -45,7 +45,7 @@ l5=struct('type', 'pool', 'num_filters',10, 'filter_size',10, 'th', 0., 'stride'
 learnable_layers=[2,4];
 network_params={l1,l2,l3,l4,l5};
 weight_params=struct('mean',0.8,'std',0.01);%定义权值初始化参数 
-max_learn_iter=[0,800,0,1200,0];
+max_learn_iter=[0,1200,0,1500,0];
 STDP_per_layer=[0,1,0,1,0];
 max_iter=sum(max_learn_iter);
 a_minus=[0,0.003,0,0.003];
@@ -92,8 +92,8 @@ if DoG==1
      [~,num_img_learn]=size(spike_times_learn);
      spike_times_train=spike_times_to_train;
      [~,num_img_train]=size(spike_times_train);
-%     spike_times_test=spike_times_to_test;
-%     [num_img_,~]=size(spike_times_texst);
+     spike_times_test=spike_times_to_test;
+     [num_img_,~]=size(spike_times_texst);
  end       
 
 % %------------------------------------训练得到结果-----------------------------------------------------------------------
@@ -116,8 +116,10 @@ end
 %----------------------------------特征判别与输出特征--------------------------------------------------------------------
 % %特征判别
 X_train = train_feature(weights,layers,network_struct,spike_times_train,num_img_train,DoG_params,num_img_learn,total_time);
-% [X_text,y_text]=test_feature();%------------函数还未定义
+%对应标签为label_train
 
+X_test = test_feature(weights,layers,network_struct,spike_times_test,num_img_test,DoG_params,num_img_test,total_time);
+%对应标签为label_test
 
 %保存X_train X_test
 %保存x_train,y_train,x_text,y_text
