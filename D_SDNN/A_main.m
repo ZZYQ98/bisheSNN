@@ -4,10 +4,10 @@ clc
 clear
 
 %输入图片路径
-path_list='D:\git_code\D_SDNN\dataset_new';
+path_list='D:\A_bishe\D_SDNN\dataset_new';
 spike_times_to_learn=[path_list,'\LearningSet'];
 spike_times_to_train=[path_list,'\TrainingSet'];
-spike_times_to_test=[path_list,'\TestiningSet'];
+spike_times_to_test=[path_list,'\TestingSet'];
 path_set_weights='D:\git code\bisheSNN\set_weight';
 %结果存储路径
 path_save_weights='D:\git code\bisheSNN\set_weights';
@@ -19,7 +19,7 @@ global save_weights
 global save_feature
 global DoG
 %标志位定义
-learn_SDNN=1;   %定义网络学习标志位，learn_SDNN等于1时，网络进行STDP学习，当learn_SDNN等于0时，网络不发生学习，直接读取已经得到的权值数据，进行测试
+learn_SDNN=0;   %定义网络学习标志位，learn_SDNN等于1时，网络进行STDP学习，当learn_SDNN等于0时，网络不发生学习，直接读取已经得到的权值数据，进行测试
 %首先看网络是否进行训练      
 if  learn_SDNN==1                  
     set_weights=0;         %训练时，不设置权值，而进行权值初始化
@@ -45,7 +45,7 @@ l5=struct('type', 'pool', 'num_filters',10, 'filter_size',10, 'th', 0., 'stride'
 learnable_layers=[2,4];
 network_params={l1,l2,l3,l4,l5};
 weight_params=struct('mean',0.8,'std',0.01);%定义权值初始化参数 
-max_learn_iter=[0,600,0,1000,0];
+max_learn_iter=[0,800,0,1200,0];
 STDP_per_layer=[0,1,0,1,0];
 max_iter=sum(max_learn_iter);
 a_minus=[0,0.003,0,0.003];
@@ -81,17 +81,17 @@ layers = init_layers(network_struct);%调用函数init_layers，网络中层的初始化
 %——————————————————输入脉冲是否经过滤波得到————————————————————————————————————
 % 
 if DoG==1
-     [spike_times_learn,y_learn]=get_iter_path1(spike_times_to_learn);%将图片输入，还需要进行滤波
-     [spike_times_train,y_train]=get_iter_path1(spike_times_to_train);
-%     [spike_times_text,y_test]=get_iter_path(spike_times_to_test);
-     [num_img_learn,~]=size(y_learn);
-     [num_img_train,~]=size(y_train);
-%     [num_img_test,~]=size(y_test);
+     [spike_times_learn,label_learn]=get_iter_path1(spike_times_to_learn);%将图片输入，还需要进行滤波
+     [spike_times_train,label_train]=get_iter_path1(spike_times_to_train);
+     [spike_times_test,label_test]=get_iter_path1(spike_times_to_test);
+     [~,num_img_learn]=size(spike_times_learn);
+     [~,num_img_train]=size(spike_times_learn);
+     [~,num_img_test]=size(spike_times_test);
  else
      spike_times_learn=spike_times_to_learn;       %不经过滤波，直接将脉冲时间输入,这些输入脉冲时间参数均为之前得到的，保存在文件中
-     [num_img_learn,~]=size(spike_times_learn);
+     [~,num_img_learn]=size(spike_times_learn);
      spike_times_train=spike_times_to_train;
-     [num_img_train,~]=size(spike_times_train);
+     [~,num_img_train]=size(spike_times_train);
 %     spike_times_test=spike_times_to_test;
 %     [num_img_,~]=size(spike_times_texst);
  end       
@@ -100,7 +100,7 @@ if DoG==1
 features_train=[];
 features_text=[];
 
-weights_path_list='weights3.26.mat';
+weights_path_list='weights3.30.mat';
 %设置权值或者进行STDP学习
 if set_weights==1
     weights_buff=load(weights_path_list);  %将从文件中输入的权值矩阵赋值给buffer

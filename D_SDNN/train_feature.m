@@ -7,11 +7,12 @@ curr_img=0;
 n=3;
 filt=DOG_creat(DoG_params);
 [~,~,n_featuers]=size(layers{num_layers}.V);
-featrues_in_train=zeros(num_layers,n_featuers);
+X_train=zeros(num_layers,n_featuers);
+
 %  X_train: Training features of size (N, M) where N is the number of training samples and M is the number of maps in the last layer
 
 
-       network_struct{num_layers-1}.th=100000; % Set threshold of last conv layer to inf设置一个阈值，不再向外发射脉冲，从而提取对应的值
+       network_struct{num_layers}.th=100000; % Set threshold of last conv layer to inf设置一个阈值，不再向外发射脉冲，从而提取对应的值
        
        
        fprintf('-------------------------------------------------------------\n')
@@ -66,7 +67,7 @@ featrues_in_train=zeros(num_layers,n_featuers);
                          %卷积层输入为s，从pool或者input，，输出为S，更新一下输出层的K_STDP
                          [S_out_inh ,K_inh_out, K_STDP_out] = lateral_inh1(V_buff , S_out , K_inh, K_STDP,t);
                     elseif strcmp( network_struct{i}.Type,'pool' )%当该层为池层时
-                        [S_out,V_buff] = pool(layers{i}.S,s_pad,weights{i},layers_buff{i}.V,stride,th);
+                        [S_out,V_buff,V_out] = pool(layers{i}.S,s_pad,weights{i},layers_buff{i}.V,stride,th);
                         [S_out_inh ,K_inh_out, K_STDP_out] = lateral_inh1(V_buff, S_out, K_inh, K_STDP,t);
                         %pool层作为学习层的输入层，发出脉冲后更新突触前神经元的K_STDP，作为是否发出抑制型STDP的标志。
                     end
@@ -82,9 +83,9 @@ featrues_in_train=zeros(num_layers,n_featuers);
             end    
         % Obtain maximum potential per map in last layer      
         features_train=layers{num_layers}.V;%最后一层V的值是一个1*1*D的三维矩阵
-        featrues_in_train(ii,:)=features_train;%将行向量结合
+        X_train(ii,:)=features_train;%将行向量结合
        end
-       X_train=features_in_train;  %将特征转化为矩阵形式
+
        fprintf('---------------------TRAINING PROGRESS %2.3f----------------- \n',num_img_train/num_img_train)
        fprintf('-------------------------------------------------------------')
        fprintf('---------------TRAINING FEATURES EXTRACTED-------------------')

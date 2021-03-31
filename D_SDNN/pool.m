@@ -1,4 +1,4 @@
-function [S,V_buff] = pool(S,s,weight,V,stride,th)
+function [S,V_buff,V] = pool(S,s,weight,V,stride,th)
 %³Ø»¯²Ù×÷
 [wi,wj,~]=size(weight);
 [si,sj,sk]=size(S);
