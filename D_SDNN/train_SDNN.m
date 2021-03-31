@@ -13,13 +13,13 @@ counter=0;
 n=3;
 filt=DOG_creat(DoG_params);
  fprintf('-------------------- STARTING LEARNING---------------------\n')             %开始训练，之后进行迭代
- for i=1:max_iter                      %max_iter 为最大迭代次数
+ for i=1:max_iter  %max_iter 为最大迭代次数
      perc=i/max_iter;
      fprintf('---------------------LEARNING PROGRESS %1.0f/%1.0f --- %2.4f-------------------- \n',i,max_iter,perc)  %显示当前的训练进度
       
       
      if counter>STDP_params.max_learning_iter(learning_layer)      %max_learning_iter由输入参数定义，表示最大的迭代次数
-         curr_lay_idx=curr_lay_idx+1;
+         curr_lay_idx=curr_lay_idx+1;%切换到下一个学习层
          learning_layer=learnable_layers(curr_lay_idx);%learning layer的定义，得到用于当前学习的矩阵
          counter=0;
      end

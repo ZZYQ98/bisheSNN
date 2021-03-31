@@ -45,7 +45,7 @@ l5=struct('type', 'pool', 'num_filters',10, 'filter_size',10, 'th', 0., 'stride'
 learnable_layers=[2,4];
 network_params={l1,l2,l3,l4,l5};
 weight_params=struct('mean',0.8,'std',0.01);%定义权值初始化参数 
-max_learn_iter=[0,1200,0,1500,0];
+max_learn_iter=[0,600,0,800,0];
 STDP_per_layer=[0,1,0,1,0];
 max_iter=sum(max_learn_iter);
 a_minus=[0,0.003,0,0.003];
@@ -115,10 +115,10 @@ if save_weights==1
 end
 %----------------------------------特征判别与输出特征--------------------------------------------------------------------
 % %特征判别
-X_train = train_feature(weights,layers,network_struct,spike_times_train,num_img_train,DoG_params,num_img_learn,total_time);
+X_train = train_feature(weights,layers,network_struct,spike_times_train,num_img_train,DoG_params,total_time);
 %对应标签为label_train
 
-X_test = test_feature(weights,layers,network_struct,spike_times_test,num_img_test,DoG_params,num_img_test,total_time);
+X_test = test_feature(weights,layers,network_struct,spike_times_test,num_img_test,DoG_params,total_time);
 %对应标签为label_test
 
 %保存X_train X_test

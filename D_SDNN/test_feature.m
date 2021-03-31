@@ -1,4 +1,4 @@
-function [X_test] = test_feature(weights,layers,network_struct,spike_times_train,num_img_train,DoG_params,num_img_learn,total_time)
+function [X_test] = test_feature(weights,layers,network_struct,spike_times_test,num_img_test,DoG_params,total_time)
 global DoG
 %获得一个N*M的矩阵，N为训练的样本数，M为最后一层的层数，即每一列保存训练结果
 [~,num_layers]=size(network_struct);
@@ -18,23 +18,23 @@ X_test=zeros(num_layers,n_featuers);
        fprintf('-------------------------------------------------------------\n')
        fprintf('--------------EXTRACTING TESTING FEATURES-------------------\n')
        fprintf('-------------------------------------------------------------\n')
-       for ii=1:num_img_train
-           perc=ii/num_img_train;
+       for ii=1:num_img_test
+           perc=ii/num_img_test;
             fprintf('---------------------TESTING PROGRESS %2.3f----------------- \n',perc)
             %reset layers
             reset_layers(layers,num_layers);
             reset_layers(layers_buff,num_layers);
            if DoG   % 是否进行DoG获得输入脉冲矩阵st
-             path_img=spike_times_train{n};
-              if n<num_img_train
+             path_img=spike_times_test{n};
+              if n<num_img_test
                   n=n+1;
               else
                   n=3;
               end    
                  st=DoG_filter_to_st(path_img,filt,DoG_params.img_size,total_time);%  st = spike_time 输入脉冲时间
            else
-                 st=spike_times_train(curr_img,:,:,:,:);  %此处的spike_times_learn是来自于读取的数据，而不用滤波得到
-                 if curr_img+1<num_img_learn
+                 st=spike_times_test(curr_img,:,:,:,:);  %此处的spike_times_learn是来自于读取的数据，而不用滤波得到
+                 if curr_img+1<num_img_test
                    curr_img=curr_img+1;
                  else
                   curr_img=0;
@@ -88,7 +88,7 @@ X_test=zeros(num_layers,n_featuers);
         X_test(ii,:)=features;%将行向量结合
        end
 
-       fprintf('---------------------TESTING PROGRESS %2.3f----------------- \n',num_img_train/num_img_train)
+       fprintf('---------------------TESTING PROGRESS %2.3f----------------- \n',num_img_test/num_img_test)
        fprintf('-------------------------------------------------------------')
        fprintf('---------------TESTING FEATURES EXTRACTED-------------------')
        fprintf('-------------------------------------------------------------\n')

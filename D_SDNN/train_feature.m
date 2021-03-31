@@ -1,4 +1,4 @@
-function [X_train] = train_feature(weights,layers,network_struct,spike_times_train,num_img_train,DoG_params,num_img_learn,total_time)
+function [X_train] = train_feature(weights,layers,network_struct,spike_times_train,num_img_train,DoG_params,total_time)
 global DoG
 %获得一个N*M的矩阵，N为训练的样本数，M为最后一层的层数，即每一列保存训练结果
 [~,num_layers]=size(network_struct);
@@ -34,7 +34,7 @@ X_train=zeros(num_layers,n_featuers);
                  st=DoG_filter_to_st(path_img,filt,DoG_params.img_size,total_time);%  st = spike_time 输入脉冲时间
            else
                  st=spike_times_train(curr_img,:,:,:,:);  %此处的spike_times_learn是来自于读取的数据，而不用滤波得到
-                 if curr_img+1<num_img_learn
+                 if curr_img+1<num_img_train
                    curr_img=curr_img+1;
                  else
                   curr_img=0;
