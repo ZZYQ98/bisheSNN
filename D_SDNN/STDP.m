@@ -1,4 +1,4 @@
-function [weights] = STDP(layers,learning_layer,STDP_index,weights,network_struct,delta_STDP_minus,delta_STDP_plus)
+function [weights] = STDP(layers,learning_layer,STDP_index,STDP_per_layer,weights,network_struct,delta_STDP_minus,delta_STDP_plus)
 %UNTITLED2 此处显示有关此函数的摘要
 %   此处显示详细说明
 pad=network_struct{learning_layer}.pad; %将s进行周围补零操作，以便于卷积  s的规模为H×W×D
@@ -9,32 +9,31 @@ K_STDP_pad=pad_for_conv( K_STDP,pad );
 w=weights{learning_layer};
 
 %  Sk  为输出脉冲的层数，与权值矩阵的个数有关
-[H,W,D,Sk]=size(w);
-for K=1:Sk
+[H,W,D,~]=size(w);
+for K=1:STDP_per_layer
     if STDP_index{K}>0
      si=STDP_index{K}(1);
      sj=STDP_index{K}(2);
      sk=STDP_index{K}(3); %sk=K
      st=STDP_index{K}(4); %即将进行STDP的位置，按层得到
-     local_K_STDP=K_STDP_pad((si-1)*stride+1:(si-1)*stride+H,(sj-1)*stride+1:(sj-1)*stride+W,:);
+     local_K_STDP=K_STDP_pad((si-1)*stride+1:(si-1)*stride+H,(sj-1)*stride+1:(sj-1)*stride+W,:);%找到发生更新的位置对应的发生映射关系的前一层的神经元
     for k=1:D
         for i=1:H
             for j=1:W
                 if local_K_STDP(i,j,k)==0
                     dw=-delta_STDP_minus(1);%*w(i,j,k,sk);
                 else
-                   
                     if local_K_STDP(i,j,k)>=st
                         dw=-delta_STDP_minus(local_K_STDP(i,j,k)-st+1);%*w(i,j,k,sk);
                     elseif local_K_STDP(i,j,k)<st
                         dw=delta_STDP_plus(st-local_K_STDP(i,j,k));%*(1-w(i,j,k,sk));
                     end
                 end
-                w(i,j,k,K)=w(i,j,k,K)+dw;
-                if w(i,j,k,K)>0.999999
-                    w(i,j,k,K)=0.999999;
-                elseif w(i,j,k,K)<0.000001
-                    w(i,j,k,K)=0.000001;
+                w(i,j,k,sk)=w(i,j,k,sk)+dw;
+                if w(i,j,k,sk)>0.999999
+                    w(i,j,k,sk)=0.999999;
+                elseif w(i,j,k,sk)<0.000001
+                    w(i,j,k,sk)=0.000001;
                 end  
             end
         end

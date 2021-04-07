@@ -63,12 +63,12 @@ X_train=zeros(num_layers,n_featuers);
                     %根据不同的层调用一些函数
 
                     if strcmp( network_struct{i}.Type,'conv' )%该层为卷积层时  
-                        [ V_out , S_out, V_buff]=conv_only( s_pad, w, V ,stride,th);%V_buff为输出脉冲位置对应的膜电压电位
+                        [ V_out , S_out ]=conv_only( s_pad, w, V ,stride,th);%V_out中包含了输出脉冲位置对应的膜电压电位
                          %卷积层输入为s，从pool或者input，，输出为S，更新一下输出层的K_STDP
-                         [S_out_inh ,K_inh_out, K_STDP_out] = lateral_inh1(V_buff , S_out , K_inh, K_STDP,t);
+                         [S_out_inh ,K_inh_out, K_STDP_out] = lateral_inh1( V_out , S_out , K_inh, K_STDP,t);
                     elseif strcmp( network_struct{i}.Type,'pool' )%当该层为池层时
-                        [S_out,V_buff,V_out] = pool(layers{i}.S,s_pad,weights{i},layers_buff{i}.V,stride,th);
-                        [S_out_inh ,K_inh_out, K_STDP_out] = lateral_inh1(V_buff, S_out, K_inh, K_STDP,t);
+                        [S_out] = pool(layers{i}.S,s_pad,weights{i},stride,th);
+                        [S_out_inh ,K_inh_out, K_STDP_out] = lateral_inh1(layers{i}.V, S_out, K_inh, K_STDP,t);
                         %pool层作为学习层的输入层，发出脉冲后更新突触前神经元的K_STDP，作为是否发出抑制型STDP的标志。
                     end
                     %传播结束后，存在一个将buff中的值更新的过程，满足下一时刻传播
@@ -80,7 +80,7 @@ X_train=zeros(num_layers,n_featuers);
                 for j=1:num_layers
                     layers_buff{j}.S=layers{j}.S;
                 end 
-            end    
+            end
         % Obtain maximum potential per map in last layer      
          features_train=layers{num_layers-1}.V;%最后一层V的值是一个1*1*D的三维矩阵
         features_train1=max(features_train,[],1);

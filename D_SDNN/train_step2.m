@@ -8,6 +8,9 @@ STDP_Flag=ones(1,D)*STDP_per_layer(learning_layer);%卷积层中的每一小层权值可以发
 %layersbuff{i}.S中存上一时刻该层的发出的脉冲，layer_buff{i-1}通过作用，产生本时刻的输出的脉冲layers{i}.S
 %layersbuff{i}.V存放输出脉冲位置的神经元膜电位值
 
+STDP_counter=0;
+
+
 %用于STDP抑制的矩阵STDP_inh
 STDP_inh2=ones(size(layers{2}.S));
 STDP_inh4=ones(size(layers{4}.S));
@@ -52,7 +55,7 @@ for t=1:total_time+num_layers       %按照时间顺序使得网络进行学习 经过这么长的时
         layers_buff{j}.S=layers{j}.S;
     end 
      %获得进行STDP的矩阵的位置
-        if  sum(sum(sum(layers{learning_layer}.S)))>0 && sum(STDP_Flag)>0
+        if  sum(sum(sum(layers{learning_layer}.S)))>0 && STDP_counter<STDP_per_layer(learning_layer)
              [STDP_index,STDP_inh{learning_layer}] = get_STDP_idx1(S_out_inh,V_buff,STDP_index,STDP_inh{learning_layer},offset(i),t);%如果有可以进行STDP的脉冲信号，即可得到对应的索引，以及实现STDP的抑制作用
         end 
 end    

@@ -33,7 +33,7 @@ filt=DOG_creat(DoG_params);
               if n<num_img_learn
                   n=n+1;
               else
-                  n=3;
+                  n=1;
               end    
              st=DoG_filter_to_st(path_img,filt,DoG_params.img_size,total_time);%  st = spike_time 输入脉冲时间
      else
@@ -45,12 +45,12 @@ filt=DOG_creat(DoG_params);
           end
      end
      layers_buff=init_layers(network_struct);%流水线结构
-     weights=train_step2( weights,layers,layers_buff,network_struct,total_time,learning_layer,st,STDP_params.STDP_per_layer,deta_STDP_minus,deta_STDP_plus,STDP_params.offset); %调用 函数train_step()  输入脉冲为st，包含了时间信息，针对输入脉冲开始进行权值训练
+     weights=train_step3( weights,layers,layers_buff,network_struct,total_time,learning_layer,st,STDP_params.STDP_per_layer,deta_STDP_minus,deta_STDP_plus,STDP_params.offset); %调用 函数train_step()  输入脉冲为st，包含了时间信息，针对输入脉冲开始进行权值训练
 
  end
     fprintf('---------LEARNING PROGRESS %2.3f------------- \n',perc)
      
-    fprintf('-------------------- FINISHED LEARNING---------------------')
+    fprintf('-------------------- FINISHED LEARNING---------------------\n')
 
 end
 

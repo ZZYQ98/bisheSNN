@@ -19,7 +19,7 @@ global save_weights
 global save_feature
 global DoG
 %标志位定义
-learn_SDNN=1;   %定义网络学习标志位，learn_SDNN等于1时，网络进行STDP学习，当learn_SDNN等于0时，网络不发生学习，直接读取已经得到的权值数据，进行测试
+learn_SDNN=0;   %定义网络学习标志位，learn_SDNN等于1时，网络进行STDP学习，当learn_SDNN等于0时，网络不发生学习，直接读取已经得到的权值数据，进行测试
 %首先看网络是否进行训练      
 if  learn_SDNN==1                  
     set_weights=0;         %训练时，不设置权值，而进行权值初始化
@@ -40,13 +40,13 @@ DoG_params=struct('img_size', img_size, 'DoG_size', 7, 'std1', 1, 'std2', 2);%定
 l1=struct('type','input', 'num_filters', 1, 'pad',0, 'H_layer',DoG_params.img_size.img_sizeH,'W_layer', DoG_params.img_size.img_sizeW);
 l2=struct('type', 'conv', 'num_filters', 4, 'filter_size', 5, 'th', 6);
 l3=struct('type', 'pool', 'num_filters', 4, 'filter_size', 17, 'th', 0., 'stride', 16);
-l4=struct('type', 'conv', 'num_filters',10, 'filter_size', 15, 'th', 20);
+l4=struct('type', 'conv', 'num_filters',10, 'filter_size', 15, 'th', 27);
 l5=struct('type', 'pool', 'num_filters',10, 'filter_size',10, 'th', 0., 'stride', 1);
 learnable_layers=[2,4];
 network_params={l1,l2,l3,l4,l5};
 weight_params=struct('mean',0.8,'std',0.01);%定义权值初始化参数 
-max_learn_iter=[0,600,0,800,0];
-STDP_per_layer=[0,1,0,1,0];
+max_learn_iter=[0,500,0,700,0];
+STDP_per_layer=[0,4,0,1,0];
 max_iter=sum(max_learn_iter);
 a_minus=[0,0.003,0,0.003];
 a_plus=[0,0.005,0,0.005];
@@ -54,11 +54,11 @@ offset=[0 5 0 0];
 %获得STDP权值更新矩阵
 tao_minus=40;
 tao_plus=20;
-STDP_time_pre=30;%增强型STDP 窗口时长
-STDP_time_post=30;%抑制性STDP 窗口时长
+STDP_time_pre=35;%增强型STDP 窗口时长
+STDP_time_post=35;%抑制性STDP 窗口时长
 deta_STDP_minus=deta_STDP(0.03,STDP_time_post,tao_minus);  %作用窗长度为STDP_time_minus=40，时常数为40
 deta_STDP_plus=deta_STDP(0.07,STDP_time_pre,tao_plus);    %作用窗长度为STDP_time_plus=30，时常数为20
-%offset_STDP=[0,floor(network_params{2}.filter_size),0,floor(network_params{4}.filter_size/8),0,floor(network_params{6}.filter_size)];
+
 
 STDP_params=struct('max_learning_iter',max_learn_iter,'STDP_per_layer',STDP_per_layer,...
                    'max_iter',max_iter,'a_minus',a_minus,'a_plus',a_plus,'offset',offset);
@@ -100,7 +100,7 @@ if DoG==1
 features_train=[];
 features_text=[];
 
-weights_path_list='weights3.30.mat';
+weights_path_list='weights_4_1_total.mat';
 %设置权值或者进行STDP学习
 if set_weights==1
     weights_buff=load(weights_path_list);  %将从文件中输入的权值矩阵赋值给buffer
@@ -115,10 +115,14 @@ if save_weights==1
 end
 %----------------------------------特征判别与输出特征--------------------------------------------------------------------
 % %特征判别
-X_train = train_feature(weights,layers,network_struct,spike_times_train,num_img_train,DoG_params,total_time);
+
+X_learn = get_feature(weights,layers,network_struct,spike_times_learn,num_img_learn,DoG_params,total_time);
+%%对应标签为label_learn
+
+X_train = get_feature(weights,layers,network_struct,spike_times_train,num_img_train,DoG_params,total_time);
 %对应标签为label_train
 
-X_test = test_feature(weights,layers,network_struct,spike_times_test,num_img_test,DoG_params,total_time);
+X_test = get_feature(weights,layers,network_struct,spike_times_test,num_img_test,DoG_params,total_time);
 %对应标签为label_test
 
 %保存X_train X_test
