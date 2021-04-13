@@ -5,26 +5,24 @@ function [V,S_out] = conv_only( s,weight,V,stride,th)
 %   此处显示详细说明
 S_out=zeros(size(V));%输出脉冲矩阵大小与膜电位矩阵大小相同
 [Vi,Vj,Vk]=size(V);
-[HH,WW,MM,DD]=size(weight);   %MM=Ds  上一层的层数     Vk=DD  
+[HH,WW,~,~]=size(weight);   %MM=Ds  上一层的层数     Vk=DD  
 
-for k=1:Vk %一层一层的来   s每一层与权值矩阵的一层进行卷积，得到Ds层数据
+for k=1:Vk %  输入脉冲矩阵s每一层与权值矩阵的Ds层进行卷积，得到Ds层数据
         for i=1:Vi
             for j=1:Vj
               if  V(i,j,k)>th %上一个时刻中，神经元的膜电压达到阈值
-                  V(i,j,k)=0;%膜电位置为零
+                  V(i,j,k)=0;%当前时刻膜电位置清零
               end
               
               local_image=double(s((i-1)*stride+1:(i-1)*stride+HH,(j-1)*stride+1:(j-1)*stride+WW,:));%local_img指的是一个小范围的图像大小为filter_size 
               %local_image 的大小为HH*WW*Ds
-              result=sum(sum(sum(weight(:,:,:,k).*local_image))); %经过前HH*WW*Ds神经元通过第k层权值进行映射得到的权值更新量
+              result=sum(weight(:,:,:,k).*local_image,'all'); %经过前HH*WW*Ds神经元通过第k层权值进行映射得到的权值更新量
               
               V(i,j,k)=result+V(i,j,k);%更新该位置的权值矩阵
                    %观察是否达到阈值，进而发射脉冲
                    %目前的抑制效果属于互抑制，没有发生自抑制
-              if V(i,j,k)>th
-                 S_out(i,j,k)=1;%发出脉冲，下一个时刻开始时将膜电压清零
-              else
-                 S_out(i,j,k)=0;
+              if V(i,j,k)>th%膜电位大于阈值
+                 S_out(i,j,k)=1;%发出脉冲
                end
             end  
         end  

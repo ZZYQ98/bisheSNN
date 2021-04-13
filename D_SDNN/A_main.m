@@ -1,4 +1,4 @@
-%SDNN的主函数  main（）
+%SDNN的主函数  main（）4.13
 %首先网络输入参数
 clc
 clear

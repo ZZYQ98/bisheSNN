@@ -4,7 +4,7 @@ clc
 clear
 
 %输入图片路径
-path_list='D:\git_code\E_SDNN\datasets';
+path_list='D:\git_code\E_SDNN\dataset_new';
 spike_times_to_learn=[path_list,'\LearningSet'];
 spike_times_to_train=[path_list,'\TrainingSet'];
 spike_times_to_test=[path_list,'\TestingSet'];
@@ -23,6 +23,7 @@ global total_time
 %标志位定义
 learn_SDNN=1;   %定义网络学习标志位，learn_SDNN等于1时，网络进行STDP学习，当learn_SDNN等于0时，网络不发生学习，直接读取已经得到的权值数据，进行测试
 relearn_SDNN=1;
+random_input_img=0;
 %首先看网络是否进行训练      
 if  learn_SDNN==1                  
     set_weights=0;         %训练时，不设置权值，而进行权值初始化
@@ -41,13 +42,13 @@ img_size=struct('img_sizeH',160,'img_sizeW',250);%定义图像规模
 DoG_params=struct('img_size', img_size, 'DoG_size', 5, 'std1', 1, 'std2', 2);%定义DoG参数
 %定义网络参数
 l1=struct('type','input', 'num_filters', 1, 'pad',0, 'H_layer',DoG_params.img_size.img_sizeH,'W_layer', DoG_params.img_size.img_sizeW);
-l2=struct('type', 'conv', 'num_filters', 4, 'filter_size', 5, 'th', 8);
+l2=struct('type', 'conv', 'num_filters', 4, 'filter_size', 5, 'th', 6);
 l3=struct('type', 'pool', 'num_filters', 4, 'filter_size', 17, 'th', 0., 'stride', 16);
 l4=struct('type', 'conv', 'num_filters',10, 'filter_size', 15, 'th', 20);
 learnable_layers=[2,4];
 network_params={l1,l2,l3,l4};
 weight_params=struct('mean',0.8,'std',0.01);%定义权值初始化参数 
-max_learn_iter=[0,800,0,1000];
+max_learn_iter=[0,800,0,900];
 STDP_per_layer=[0,4,0,1];
 max_iter=sum(max_learn_iter);
 a_minus=[0,0.003,0,0.003];
@@ -84,43 +85,48 @@ layers = init_layers(network_struct);%调用函数init_layers，网络中层的初始化
 
 %——————————————————输入脉冲是否经过滤波得到————————————————————————————————————
 % label中，face为1，motobike为2
-if DoG==1
+if random_input_img==1
      [spike_times_learn,label_learn]=get_iter_path1(spike_times_to_learn);%将图片输入，还需要进行滤波
      [spike_times_train,label_train]=get_iter_path1(spike_times_to_train);
      [spike_times_test,label_test]=get_iter_path1(spike_times_to_test);
      [~,num_img_learn]=size(spike_times_learn);
-     [~,num_img_train]=size(spike_times_learn);
-     [~,num_img_test]=size(spike_times_test);
- else
-     spike_times_learn=spike_times_to_learn;       %不经过滤波，直接将脉冲时间输入,这些输入脉冲时间参数均为之前得到的，保存在文件中
-     [~,num_img_learn]=size(spike_times_learn);
-     spike_times_train=spike_times_to_train;
      [~,num_img_train]=size(spike_times_train);
-     spike_times_test=spike_times_to_test;
-     [num_img_,~]=size(spike_times_texst);
+     [~,num_img_test]=size(spike_times_test);
+else           % ----------------------固定的输入次序
+     spike_times_learn=load("data100_spike_times_learn.mat").spike_times_learn;      
+     label_learn=load("data100_label_learn.mat").label_learn;
+     [~,num_img_learn]=size(spike_times_learn);
+    
+     spike_times_train=load("data100_spike_times_train.mat").spike_times_train;      
+     label_train=load("label_train.mat").label_train;
+     [~,num_img_train]=size(spike_times_train);
+     
+     spike_times_test=load("data100_spike_times_test.mat").spike_times_test;      
+     label_test=load("data100_label_test.mat").label_test;
+     [~,num_img_test]=size(spike_times_test);
 end       
 
 % %------------------------------------训练得到结果-----------------------------------------------------------------------
-features_train=[];
-features_text=[];
 
-weights_path_list='weights_combine.mat';
+weights_path_list='weights_4_10.mat';
 
 %设置权值或者进行STDP学习
 if set_weights==1
    weights =load(weights_path_list);  %将文件中的权值矩阵取出，直接进行赋值
    weights=weights.weights;
 else
-    learn_buffer=spike_times_learn;
-    weights=train_SDNN(weights,layers,network_struct,spike_times_learn,DoG_params,STDP_params,num_img_learn,learnable_layers,learn_buffer,total_time,deta_STDP_minus,deta_STDP_plus);
-    save('weights_4_6_train_SDNN.mat','weights');
+    %第一层权值的训练已经结束
+    weights_2_trained=load("weights_2_trained.mat").weights_2_trained;
+    weights{2}=weights_2_trained;
+    weights=train_SDNN(weights,layers,network_struct,spike_times_learn,DoG_params,STDP_params,num_img_learn,learnable_layers,total_time,deta_STDP_minus,deta_STDP_plus);
+    save('weights_4_11_train_SDNN.mat','weights');
 end
 if relearn_SDNN==1
     weights=retrain_SDNN(weights,layers,network_struct,spike_times_learn,DoG_params,STDP_params,num_img_learn,total_time,STDP_time,retrain_params,label_learn);
 end
 %权值存储
 if save_weights==1
-    save('weights_4_6_retrain_SDNN.mat','weights');
+    save('weights_4_11_retrain_SDNN.mat','weights');
 end
 %----------------------------------特征判别与输出特征--------------------------------------------------------------------
 % %特征判别
@@ -128,39 +134,23 @@ end
 [X_learn,T_learn] = get_feature(weights,layers,network_struct,spike_times_learn,num_img_learn,DoG_params,total_time);
 %%对应标签为label_learn
 [learn_label] = check_T(T_learn);
+learning_correct_rate=correct_rate(label_learn,learn_label);
 
 [X_train,T_train] = get_feature(weights,layers,network_struct,spike_times_train,num_img_train,DoG_params,total_time);
 %对应标签为label_train
 [train_label] = check_T(T_train);
+training_correct_rate=correct_rate(label_train,train_label);
 
 [X_test,T_test] = get_feature(weights,layers,network_struct,spike_times_test,num_img_test,DoG_params,total_time);
 %对应标签为label_test
 [test_label] = check_T(T_test);
+testing_correct_rate=correct_rate(label_test,test_label);
 
-
-
-
-
-
-
-
-% %---------------------------------分类器------------------------------------------------------------------------
-% calssfier_params=struct('C',1,'gamma','auto');
-% train_mean=mean(X_train,1);
-% train_std=std(X_train,1);
-% X_train=X_train-train_mean;
-% X_test=X_test-train_mean;
-% X_train=X_train/(train_std+1e-5);
-% X_test=X_test/(train_std+1e-5);
-% 
-% %调用分类器 classfier
-% 
-
-
-
-
-
-
-
-
-
+%svm分类
+SVM_train=fitcsvm(X_train,label_train);
+result_learn=predict(SVM_train,X_learn);
+result_train=predict(SVM_train,X_train);
+result_test=predict(SVM_train,X_test);
+SVM_learning_correct_rate=correct_rate(label_learn,result_learn,num_img_learn);
+SVM_training_correct_rate=correct_rate(label_train,result_train,num_img_train);
+SVM_testing_correct_rate=correct_rate(label_test,result_test,num_img_test);

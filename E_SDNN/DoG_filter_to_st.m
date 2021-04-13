@@ -18,7 +18,7 @@ out1=out1.*border;
 
 out_threshold=out1;
 out_threshold(out1<16)=0;
-
+img_out=out_threshold;
 % for i=1:H
 %     for j=1:W
 %         out_threshold(i,j)=1/out_threshold(i,j);
@@ -36,16 +36,15 @@ out_x=reshape(out_threshold,[1,H*W]);%矩阵降维，数据按照列的顺序进行填充成为一维
 
 [lat,I] = sort(out_x);  
 I(lat==Inf)=[];%删去I中的inf位置，可以认为该位置不发出脉冲
-lat(lat==inf)=[];
 %I中存储的是索引
 [X,Y] = ind2sub([H,W],I);        %将I所存的向量序数转化为矩阵中的行列位置    XY中为out_x中发出脉冲的索引
 [~,I_num]=size(I);
-out_max=max(lat);%输出最大值
-out_min=min(lat);%输出最小值
+out_max=max(img_out,[],'all');%输出最大值
+out_min=min(img_out,[],'all');%输出最小值
 
 t_step=zeros(size(out_S))*total_time;
 for i=1:I_num
-t_step(X(i),Y(i))=floor((out_max-out_S(X(i),Y(i)))/(out_max-out_min)*(total_time-num_layers))+1;%t_step存储了发出脉冲时刻的值
+t_step(X(i),Y(i))=floor((out_max-img_out(X(i),Y(i)))/(out_max-out_min)*(total_time-num_layers))+1;%t_step存储了发出脉冲时刻的值
 end
 
 M = zeros(H,W,total_time );

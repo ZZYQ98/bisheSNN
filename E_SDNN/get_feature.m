@@ -1,10 +1,7 @@
 function [X,T_features] = get_feature(weights,layers,network_struct,spike_times,num_img,DoG_params,total_time)
-global DoG
 %获得一个N*M的矩阵，N为训练的样本数，M为最后一层的层数，即每一列保存训练结果
 [~,num_layers]=size(network_struct);
-layers_buff=init_layers(network_struct);%流水线结构
-curr_img=0;
-n=3;
+n=1; 
 [~,~,n_featuers]=size(layers{num_layers}.V);
 X=zeros(num_img,n_featuers);
 T_features=zeros(num_layers,n_featuers);
@@ -21,30 +18,20 @@ Sz=n_featuers; %最后一层卷积层的深度层数
             fprintf('---------------------TRAINING PROGRESS %2.3f----------------- \n',perc)
             %reset layers
             layers=reset_layers(layers,num_layers);
-            layers_buff=reset_layers(layers_buff,num_layers);
+            layers_buff=init_layers(network_struct);
            T=(total_time+num_layers)*ones(1,Sz); %用于存储首脉冲时间的数组 T
-           if DoG   % 是否进行DoG获得输入脉冲矩阵st
              path_img=spike_times{n};
               if n<num_img
                   n=n+1;
               else
-                  n=3;
+                  n=1;
               end    
                  st=DoG_filter_to_st(path_img,DoG_params.DoG_size,DoG_params.img_size,total_time,num_layers);%  st = spike_time 输入脉冲时间
-           else
-                 st=spike_times(curr_img,:,:,:,:);  %此处的spike_times_learn是来自于读取的数据，而不用滤波得到
-                 if curr_img+1<num_img
-                   curr_img=curr_img+1;
-                 else
-                  curr_img=0;
-                 end
-           end
            
-          [si,sj,sz]=size(layers{2}.S);
-          S_record=zeros(si,sj,sz);
+%           [si,sj,sz]=size(layers{2}.S);
+%           S_record=zeros(si,sj,sz);
        
-             
-            %脉冲传播过程
+%脉冲传播过程prop_step()----------------------------------------------------------------------------------------------------------------------------------------
             for t=1:total_time+num_layers       %按照时间顺序使得网络进行学习 经过这么长的时间，才能保证所有输入脉冲信息传递过网络
               if t<=total_time
                 layers{1}.S=st(:,:,t);%st为输入的脉冲按照时间分布的矩阵
@@ -53,7 +40,6 @@ Sz=n_featuers; %最后一层卷积层的深度层数
                 %t-1时刻的值均在layers中，初始情况下均为初始化值
                 %t时刻的值根据t-1时刻前一层的值进行
                 for i=2:num_layers    
-                    w=weights{i};
                     V=layers{i}.V;
                     s=layers_buff{i-1}.S;
                     K_inh=layers{i}.K_inh;
@@ -66,7 +52,7 @@ Sz=n_featuers; %最后一层卷积层的深度层数
                     %根据不同的层调用一些函数
 
                     if strcmp( network_struct{i}.Type,'conv' )%该层为卷积层时  
-                        [ V_out , S_out ]=conv_only( s_pad, w, V ,stride,th);%V_out中包含了输出脉冲位置对应的膜电压电位,用于get_STDP_index中找到发生STDP学习的神经元位置
+                        [ V_out , S_out ]=conv_only( s_pad, weights{i}, V ,stride,th);%V_out中包含了输出脉冲位置对应的膜电压电位,用于get_STDP_index中找到发生STDP学习的神经元位置
                          %卷积层输入为s，从pool或者input，，输出为S，更新一下输出层的K_STDP
                          [S_out_inh ,K_inh_out, K_STDP_out] = lateral_inh1( V_out , S_out , K_inh, K_STDP,t);
                     elseif strcmp( network_struct{i}.Type,'pool' )%当该层为池层时
@@ -91,7 +77,8 @@ Sz=n_featuers; %最后一层卷积层的深度层数
                 for j=1:num_layers
                     layers_buff{j}.S=layers{j}.S;
                 end 
-                     S_record=S_record+layers{2}.S;
+%                      S_record=S_record+layers{2}.S;
+%                      imshow(sum(S_record,3))
             end
         % Obtain maximum potential per map in last layer      
         features=layers{num_layers}.V;%最后一层V的值是一个1*1*D的三维矩阵
@@ -102,8 +89,8 @@ Sz=n_featuers; %最后一层卷积层的深度层数
        end
 
        fprintf('---------------------TRAINING PROGRESS %2.3f----------------- \n',num_img/num_img)
-       fprintf('-------------------------------------------------------------')
-       fprintf('---------------TRAINING FEATURES EXTRACTED-------------------')
+       fprintf('-------------------------------------------------------------\n')
+       fprintf('---------------TRAINING FEATURES EXTRACTED-------------------\n')
        fprintf('-------------------------------------------------------------\n')
 
 end

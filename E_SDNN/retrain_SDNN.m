@@ -12,11 +12,10 @@ global DoG
 max_iter=retrain_params.retrain_iter;
 curr_img=0;%输入即为脉冲矩阵的情况下
 n=1;
-filt=DOG_creat(DoG_params);
- fprintf('-------------------- STARTING RETRAIN---------------------\n')             %进行强化学习
+ fprintf('----------------------------------- STARTING RETRAIN----------------------------------\n')             %进行强化学习
  for i=1:max_iter  %max_iter 为最大迭代次数
      perc=i/max_iter;
-     fprintf('---------------------LEARNING PROGRESS %1.0f/%1.0f --- %2.4f-------------------- \n',i,max_iter,perc)  %显示当前的训练进度
+     fprintf('---------------------RETRAINING PROGRESS %1.0f/%1.0f --- %2.4f-------------------- \n',i,max_iter,perc)  %显示当前的训练进度
       
      learning_layer=4; 
      %调用函数 reset_layers
@@ -40,11 +39,11 @@ filt=DOG_creat(DoG_params);
      end
      layers_buff=init_layers(network_struct);%流水线结构
      weights=retrain_step( weights,layers,layers_buff,network_struct,total_time,learning_layer,st,STDP_params.STDP_per_layer,...
-             deta_STDP_minus_p,deta_STDP_plus_p,deta_STDP_minus_r,deta_STDP_plus_r,STDP_params.offset,label{n});
+             deta_STDP_minus_p,deta_STDP_plus_p,deta_STDP_minus_r,deta_STDP_plus_r,STDP_params.offset,label(n));
 
  end
-    fprintf('---------------------LEARNING PROGRESS %2.3f------------- \n',perc)
+    fprintf('-------------------------------LEARNING PROGRESS %2.3f----------------------------- \n',perc)
      
-    fprintf('-------------------- FINISHED LEARNING---------------------\n')
+    fprintf('------------------------------ FINISHED LEARNING------------------------------------------\n')
 
 end

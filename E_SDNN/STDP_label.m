@@ -1,16 +1,17 @@
 function [weights] = STDP_label(layers,learning_layer,STDP_index,weights,network_struct,deta_STDP_minus_r ,deta_STDP_plus_r,deta_STDP_minus_p,deta_STDP_plus_p,label)
 %UNTITLED2 此处显示有关此函数的摘要
 %   此处显示详细说明
+[~,num_layers]=size(layers);
 pad=network_struct{learning_layer}.pad; %将s进行周围补零操作，以便于卷积  s的规模为H×W×D
 stride=network_struct{learning_layer}.stride;
-[~,~,Sz]=size(layers{learning_layer}.S);
+[~,~,sz]=size(layers{learning_layer}.S);
 K_STDP=layers{learning_layer-1}.K_STDP; %学习层上一层的脉冲输入时间矩阵
-K_STDP_pad=pad_for_conv( K_STDP,pad );
+K_STDP_pad=pad_for_K_STDP( K_STDP,pad,num_layers );
 w=weights{learning_layer};
-
+global total_time
 %  Sk  为输出脉冲的层数，与权值矩阵的个数有关
 [H,W,D,~]=size(w);
-for sk=1:Sz
+for sk=1:sz
   if STDP_index{sk}(1)>0
      si=STDP_index{sk}(2);
      sj=STDP_index{sk}(3); %sk=K
@@ -22,7 +23,7 @@ for sk=1:Sz
                     for k=1:D
                         for i=1:H
                             for j=1:W
-                                if local_K_STDP(i,j,k)==0
+                                if local_K_STDP(i,j,k)==total_time+num_layers
                                     dw=-deta_STDP_minus_r(1)*w(i,j,k,sk);
                                 else
                                     if local_K_STDP(i,j,k)>=t
@@ -44,7 +45,7 @@ for sk=1:Sz
                     for k=1:D
                         for i=1:H
                             for j=1:W
-                                if local_K_STDP(i,j,k)==0
+                                if local_K_STDP(i,j,k)==total_time+num_layers
                                     dw=-deta_STDP_minus_p(1)*w(i,j,k,sk);
                                 else
                                     if local_K_STDP(i,j,k)>=t
@@ -71,7 +72,7 @@ for sk=1:Sz
                     for k=1:D
                         for i=1:H
                             for j=1:W
-                                if local_K_STDP(i,j,k)==0
+                                if local_K_STDP(i,j,k)==total_time+num_layers
                                     dw=-deta_STDP_minus_r(1)*w(i,j,k,sk);
                                 else
                                     if local_K_STDP(i,j,k)>=t
@@ -93,7 +94,7 @@ for sk=1:Sz
                     for k=1:D
                         for i=1:H
                             for j=1:W
-                                if local_K_STDP(i,j,k)==0
+                                if local_K_STDP(i,j,k)==total_time+num_layers
                                     dw=-deta_STDP_minus_p(1);%*w(i,j,k,sk);
                                 else
                                     if local_K_STDP(i,j,k)>=t

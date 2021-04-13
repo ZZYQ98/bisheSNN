@@ -1,11 +1,13 @@
 function [weights] = STDP(layers,learning_layer,STDP_index,weights,network_struct,deta_STDP_minus,deta_STDP_plus)
 %UNTITLED2 此处显示有关此函数的摘要
+global total_time
 %   此处显示详细说明
+[~,num_layers]=size(layers);
 pad=network_struct{learning_layer}.pad; %将s进行周围补零操作，以便于卷积  s的规模为H×W×D
 stride=network_struct{learning_layer}.stride;
 [~,~,Sz]=size(layers{learning_layer}.S);
 K_STDP=layers{learning_layer-1}.K_STDP; %学习层上一层的脉冲输入时间矩阵
-K_STDP_pad=pad_for_K_STDP( K_STDP,pad );
+K_STDP_pad=pad_for_K_STDP( K_STDP,pad ,num_layers);
 w=weights{learning_layer};
 
 %  Sk  为输出脉冲的层数，与权值矩阵的个数有关
@@ -19,7 +21,7 @@ for K=1:Sz
     for k=1:D
         for i=1:H
             for j=1:W
-                if local_K_STDP(i,j,k)==0
+                if local_K_STDP(i,j,k)==total_time+num_layers
                     dw=-deta_STDP_minus(1);%*w(i,j,k,sk);
                 else
                     if local_K_STDP(i,j,k)>=t

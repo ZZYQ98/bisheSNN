@@ -5,7 +5,7 @@ function [ weights ] = train_step3( weights,layers,layers_buff,network_struct,to
 
 %layersbuff{i}.S中存上一时刻该层的发出的脉冲，layer_buff{i-1}通过作用，产生本时刻的输出的脉冲layers{i}.S
 %layersbuff{i}.V存放输出脉冲位置的神经元膜电位值
-[Si,Sj,Sz]=size(layers{learning_layer}.S);
+[~,~,Sz]=size(layers{learning_layer}.S);
 
 
 STDP_counter=0;
@@ -59,7 +59,7 @@ for t=1:total_time+num_layers       %按照时间顺序使得网络进行学习 经过这么长的时
     %STDP_inh为对应的STDP
 valid=double(S_out_inh.*V_out.*STDP_inh{learning_layer});%可以进行STDP的神经元 
  %获得进行STDP的矩阵的位置
-     if  sum(sum(sum(valid)))>0 && STDP_counter<STDP_per_layer(learning_layer)
+     if  sum(valid,'all')>0 && STDP_counter<STDP_per_layer(learning_layer)
          [STDP_index,STDP_counter] = get_STDP_idx3(valid,STDP_index,STDP_counter,offset(learning_layer),STDP_per_layer(learning_layer),t);
          [STDP_inh{learning_layer}] = STDP_inh1(valid,STDP_inh{learning_layer},STDP_index,offset(learning_layer));
          %如果有可以进行STDP的脉冲信号，即可得到对应的索引，以及实现STDP的抑制作用
